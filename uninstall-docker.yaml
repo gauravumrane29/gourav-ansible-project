@@ -1,0 +1,55 @@
+---
+- name: Remove Docker Engine from worker nodes
+  hosts: env_dev
+  become: yes
+  tasks:
+    - name: Stop Docker service
+      ansible.builtin.service:
+        name: docker
+        state: stopped
+      ignore_errors: yes
+
+    - name: Remove Docker packages (Ubuntu/Debian)
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - docker.io
+          - containerd.io
+        state: absent
+        purge: yes
+      when: ansible_os_family == "Debian"
+      ignore_errors: yes
+
+    - name: Remove Docker packages (RHEL/CentOS)
+      ansible.builtin.yum:
+        name:
+          - docker
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: absent
+      when: ansible_os_family == "RedHat"
+      ignore_errors: yes
+
+    - name: Remove Docker data directory
+      ansible.builtin.file:
+        path: /var/lib/docker
+        state: absent
+        recurse: yes
+      ignore_errors: yes
+
+    - name: Remove containerd data directory
+      ansible.builtin.file:
+        path: /var/lib/containerd
+        state: absent
+        recurse: yes
+      ignore_errors: yes
+
+    - name: Remove Docker config directory
+      ansible.builtin.file:
+        path: /etc/docker
+        state: absent
+        recurse: yes
+      ignore_errors: yes
+
