@@ -6,7 +6,6 @@ filters:
   instance-state-name: running
 compose:
   ansible_host: public_ip_address
-  ansible_user: ubuntu
 keyed_groups:
   - key: tags.Environment
     prefix: env
